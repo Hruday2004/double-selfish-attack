@@ -18,7 +18,7 @@ class Simulator:
     max_sim_time: Maximum simulation time for simulator
     
     """
-    def __init__(self, num_nodes, slowfrac, lowCPUfrac, txnDelay_meantime, max_sim_time):
+    def __init__(self, num_nodes, slowfrac, lowCPUfrac, txnDelay_meantime, max_sim_time, attacker1_hp, attacker2_hp):
 
         self.txnDelay_meantime = txnDelay_meantime
         self.num_nodes = num_nodes
@@ -36,6 +36,9 @@ class Simulator:
 
         
         self.nodes = self.create_nodes(slowfrac,lowCPUfrac)
+        self.attacker1_hp = attacker1_hp
+        self.attacker2_hp = attacker2_hp
+        
         self.peers = self.create_peers(num_nodes)
 
         self.initial_events()
@@ -51,14 +54,14 @@ class Simulator:
         :return : A list of nodes
         """
 
-        slownodes = int(slowfrac * self.num_nodes)
-        lowCPUnodes = int(lowCPUfrac * self.num_nodes)
+        slownodes = int(slowfrac * (self.num_nodes - 2))
+        lowCPUnodes = int(lowCPUfrac * (self.num_nodes - 2))
 
         l1 = [1]*int(self.num_nodes-slownodes) + [0]*slownodes
         l2 = [1]*int(self.num_nodes-lowCPUnodes) + [0]*lowCPUnodes
 
         # Sum of hashing power of all the nodes
-        hashingSum = (self.num_nodes-lowCPUnodes)*10 + lowCPUnodes 
+        hashingSum = (self.num_nodes-lowCPUnodes - 2)*10 + lowCPUnodes 
 
 
         random.shuffle(l1)  
@@ -66,12 +69,15 @@ class Simulator:
 
         nodes = {}
 
-        for i in range(self.num_nodes):
-            hashFrac = 1/hashingSum
-            if l2[i] == 1:
-                hashFrac = 10/hashingSum
+        nodes[0] = Node(coins=100, isFast = 1, isHighCPU=1, id = 0 , hashingFraction=self.attacker1_hp, isAttacker=1)
+        nodes[1] = Node(coins=100, isFast = 1, isHighCPU=1, id = 1 , hashingFraction=self.attacker2_hp, isAttacker=1)
         
-            nodes[i] = Node(coins=100,isFast=l1[i], isHighCPU=l2[i],id=i,hashingFraction=hashFrac )
+        for i in range(2, self.num_nodes):
+            hashFrac = (1-self.attacker1_hp-self.attacker2_hp)/hashingSum
+            if l2[i] == 1:
+                hashFrac = (10*(1-self.attacker1_hp-self.attacker2_hp))/hashingSum
+        
+            nodes[i] = Node(coins=100,isFast=l1[i], isHighCPU=l2[i],id=i,hashingFraction=hashFrac, isAttacker=0)
 
         for i in range(self.num_nodes):
             self.p.append([])
