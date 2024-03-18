@@ -152,32 +152,28 @@ class BlockGen(Events):
             # If thre are no transactions to put in, return
             return
         
-        if miner.isAttacker:
-            #TODO
-            pass
-        else:
-            # Create a new Block
-            new_block = Block(sim.block_id, self.exec_node_id, self.timeOfexec, self.prev_last_block.id, self.prev_last_block.length + 1)
-            # Add the new transactions to the block
-            new_block.transactions = list(valid_remaining_txns)[0: min(999, len(valid_remaining_txns))]
-            # Node receives the mining reward
-            miner.coins += 50
-            # Block is added to the collection public_blocks the node has seen
-            miner.public_blocks[sim.block_id] = [new_block, self.timeOfexec]
-            # Newly added transaction are added to the longest chain transactions
-            miner.already_in_blockchain_transactions += valid_remaining_txns
-            
-            
-            print(self.timeOfexec, f"BlockID:{sim.block_id} :: {self.creator_id} mines 50 coins")
-            
-            # Gloabl BlockID is incremented
-            sim.block_id += 1
-            
-            msg_length = (1 + len(new_block.transactions))*8000
-            
-            for i in sim.peers[self.creator_id]:
-                # Block receive event added for all the neighbours 
-                sim.events.put(BlockRec(self.timeOfexec + sim.delay(msg_length, self.creator_id, i), i, self.creator_id, self.creator_id, self.timeOfexec, new_block))
+        # Create a new Block
+        new_block = Block(sim.block_id, self.exec_node_id, self.timeOfexec, self.prev_last_block.id, self.prev_last_block.length + 1)
+        # Add the new transactions to the block
+        new_block.transactions = list(valid_remaining_txns)[0: min(999, len(valid_remaining_txns))]
+        # Node receives the mining reward
+        miner.coins += 50
+        # Block is added to the collection public_blocks the node has seen
+        miner.public_blocks[sim.block_id] = [new_block, self.timeOfexec]
+        # Newly added transaction are added to the longest chain transactions
+        miner.already_in_blockchain_transactions += valid_remaining_txns
+        
+        
+        print(self.timeOfexec, f"BlockID:{sim.block_id} :: {self.creator_id} mines 50 coins")
+        
+        # Gloabl BlockID is incremented
+        sim.block_id += 1
+        
+        msg_length = (1 + len(new_block.transactions))*8000
+        
+        for i in sim.peers[self.creator_id]:
+            # Block receive event added for all the neighbours 
+            sim.events.put(BlockRec(self.timeOfexec + sim.delay(msg_length, self.creator_id, i), i, self.creator_id, self.creator_id, self.timeOfexec, new_block))
 
 class BlockRec(Events):
     """
@@ -222,7 +218,15 @@ class BlockRec(Events):
         cur_node.already_in_blockchain_transactions += self.new_block.transactions
 
         if cur_node.isAttacker:
-            sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id , self.timeOfexec, last_block))
+            match cur_node.lead_from_honest_block:
+                case(0):
+                    sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id , self.timeOfexec, last_block))
+                case(1):
+                    pass
+                case(2):
+                    pass
+                case(default):
+                    pass
         else:
             for i in sim.peers[self.exec_node_id]:
                 # Block receive event added for all the neighbours 
