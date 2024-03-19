@@ -175,9 +175,9 @@ class Simulator:
             # Initial transactions
             self.events.put(TransactionGen(self.interArrival_txndelay(), i,0))
         
-        for i in range(self.num_nodes):
+        for i in range(2, self.num_nodes):
             # Initial Block generation events
-            self.events.put(BlockGen(self.nodes[i].T_k(),i,0,self.nodes[i].blocks[0][0]))
+            self.events.put(BlockGen(self.nodes[i].T_k(),i,0,self.nodes[i].blocks[0][0], 1))
 
     def run(self):
         """
