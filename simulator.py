@@ -35,9 +35,10 @@ class Simulator:
         self.events = PriorityQueue() # Priority Queue to store the events in the ascending order of executuion time
 
         
-        self.nodes = self.create_nodes(slowfrac,lowCPUfrac)
         self.attacker1_hp = attacker1_hp
         self.attacker2_hp = attacker2_hp
+
+        self.nodes = self.create_nodes(slowfrac,lowCPUfrac)
         
         self.peers = self.create_peers(num_nodes)
 
@@ -177,7 +178,7 @@ class Simulator:
         
         for i in range(2, self.num_nodes):
             # Initial Block generation events
-            self.events.put(BlockGen(self.nodes[i].T_k(),i,0,self.nodes[i].blocks[0][0], 1))
+            self.events.put(BlockGen(self.nodes[i].T_k(),i,0,self.nodes[i].public_blocks[0][0], 1))
 
     def run(self):
         """

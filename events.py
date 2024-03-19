@@ -234,75 +234,72 @@ class BlockRec(Events):
         
 
         if cur_node.isAttacker:
-            match cur_node.lead_from_honest_block:
-                case(0):
-                    # Creating a BlockGen event for selfish mining on the longest chain
-                    sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id , self.timeOfexec, last_block, 0))
-                case(1):
-                    
+            if cur_node.lead_from_honest_block == 0:
+                # Creating a BlockGen event for selfish mining on the longest chain
+                sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id , self.timeOfexec, last_block, 0))
+            elif cur_node.lead_from_honest_block == 1:
+                
+                # Removing the private block from the private block chain 
+                min_key = min(cur_node.private_blocks)
+                priv_blk, priv_timestamp = cur_node.private_blocks[min_key][0], cur_node.private_blocks[min_key][1]
+                del cur_node.private_blocks[min_key]
+                
+                # Adding the private block to the public block chain
+                cur_node.public_blocks[min_key] = [deepcopy(priv_blk), priv_timestamp]
+                
+                # Broadcasting the private block to all the neighbors
+                for i in sim.peers[self.exec_node_id]:
+                    # Block receive event added for all the neighbours 
+                    sim.events.put(BlockRec(self.timeOfexec + sim.delay(8000*(1+len(priv_blk.transactions)), self.exec_node_id, i) , i, self.exec_node_id, self.exec_node_id, self.timeOfexec, priv_blk))
+        
+                cur_node.lead_from_honest_block = 0
+                
+                # Creating a BlockGen event for mining on the latest released block
+                sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k , self.exec_node_id, self.timeOfexec, priv_blk, 1))
+                
+            elif cur_node.lead_from_honest_block == 2:
+                min_key1 = min(cur_node.private_blocks)
+                block1 = deepcopy(cur_node.private_blocks[min_key1][0])
+                cur_node.public_blocks[min_key1] = [block1,cur_node.private_blocks[min_key1][1]]
+                del cur_node.private_blocks[min_key1]
+
+                min_key2 = min(cur_node.private_blocks)
+                block2 = deepcopy(cur_node.private_blocks[min_key2][0])
+                cur_node.public_blocks[min_key2] = [block2,cur_node.private_blocks[min_key2][1]]
+                del cur_node.private_blocks[min_key2]
+
+                twoinoneblock = Block(sim.block_id, self.exec_node_id, self.timeOfexec, block1.prev_last_block.id, 0)
+                twoinoneblock.block1 = block1
+                twoinoneblock.block2 = block2
+
+                sim.block_id+=1
+
+                for i in sim.peers[self.exec_node_id]:
+                    # Block receive event added for all the neighbours 
+                    sim.events.put(BlockRec(self.timeOfexec + sim.delay(8000*(1+len(block1.transactions+block2.transactions)), self.exec_node_id, i) , i, self.exec_node_id, self.exec_node_id, self.timeOfexec, twoinoneblock))
+
+                cur_node.lead_from_honest_block = 0
+
+                sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k , self.exec_node_id, self.timeOfexec, block2, 0))
+    
+            else:
                     # Removing the private block from the private block chain 
-                    min_key = min(cur_node.private_blocks)
-                    priv_blk, priv_timestamp = cur_node.private_blocks[min_key][0], cur_node.private_blocks[min_key][1]
-                    del cur_node.private_blocks[min_key]
-                    
-                    # Adding the private block to the public block chain
-                    cur_node.public_blocks[min_key] = [deepcopy(priv_blk), priv_timestamp]
-                    
-                    # Broadcasting the private block to all the neighbors
-                    for i in sim.peers[self.exec_node_id]:
-                        # Block receive event added for all the neighbours 
-                        sim.events.put(BlockRec(self.timeOfexec + sim.delay(8000*(1+len(priv_blk.transactions)), self.exec_node_id, i) , i, self.exec_node_id, self.exec_node_id, self.timeOfexec, priv_blk))
-            
-                    cur_node.lead_from_honest_block = 0
-                    
-                    # Creating a BlockGen event for mining on the latest released block
-                    sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k , self.exec_node_id, self.timeOfexec, priv_blk, 1))
-                    
-                case(2):
-                    min_key1 = min(cur_node.private_blocks)
-                    block1 = deepcopy(cur_node.private_blocks[min_key1][0])
-                    cur_node.public_blocks[min_key1] = [block1,cur_node.private_blocks[min_key1][1]]
-                    del cur_node.private_blocks[min_key1]
-
-                    min_key2 = min(cur_node.private_blocks)
-                    block2 = deepcopy(cur_node.private_blocks[min_key2][0])
-                    cur_node.public_blocks[min_key2] = [block2,cur_node.private_blocks[min_key2][1]]
-                    del cur_node.private_blocks[min_key2]
-
-                    twoinoneblock = Block(sim.block_id, self.exec_node_id, self.timeOfexec, block1.prev_last_block.id, 0)
-                    twoinoneblock.block1 = block1
-                    twoinoneblock.block2 = block2
-
-                    sim.block_id+=1
-
-                    for i in sim.peers[self.exec_node_id]:
-                        # Block receive event added for all the neighbours 
-                        sim.events.put(BlockRec(self.timeOfexec + sim.delay(8000*(1+len(block1.transactions+block2.transactions)), self.exec_node_id, i) , i, self.exec_node_id, self.exec_node_id, self.timeOfexec, twoinoneblock))
-
-                    cur_node.lead_from_honest_block = 0
-
-                    sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k , self.exec_node_id, self.timeOfexec, block2, 0))
-
-
-                        
-                case(default):
-                     # Removing the private block from the private block chain 
-                    min_key = min(cur_node.private_blocks)
-                    priv_blk, priv_timestamp = cur_node.private_blocks[min_key][0], cur_node.private_blocks[min_key][1]
-                    del cur_node.private_blocks[min_key]
-                    
-                    # Adding the private block to the public block chain
-                    cur_node.public_blocks[min_key] = [deepcopy(priv_blk), priv_timestamp]
-                    
-                    # Broadcasting the private block to all the neighbors
-                    for i in sim.peers[self.exec_node_id]:
-                        # Block receive event added for all the neighbours 
-                        sim.events.put(BlockRec(self.timeOfexec + sim.delay(8000*(1+len(priv_blk.transactions)), self.exec_node_id, i) , i, self.exec_node_id, self.exec_node_id, self.timeOfexec, priv_blk))
-            
-                    cur_node.lead_from_honest_block -= 1
-                    
-                    # Creating a BlockGen event for mining on the latest released block
-                    sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k , self.exec_node_id, self.timeOfexec, priv_blk, 0))
+                min_key = min(cur_node.private_blocks)
+                priv_blk, priv_timestamp = cur_node.private_blocks[min_key][0], cur_node.private_blocks[min_key][1]
+                del cur_node.private_blocks[min_key]
+                
+                # Adding the private block to the public block chain
+                cur_node.public_blocks[min_key] = [deepcopy(priv_blk), priv_timestamp]
+                
+                # Broadcasting the private block to all the neighbors
+                for i in sim.peers[self.exec_node_id]:
+                    # Block receive event added for all the neighbours 
+                    sim.events.put(BlockRec(self.timeOfexec + sim.delay(8000*(1+len(priv_blk.transactions)), self.exec_node_id, i) , i, self.exec_node_id, self.exec_node_id, self.timeOfexec, priv_blk))
+        
+                cur_node.lead_from_honest_block -= 1
+                
+                # Creating a BlockGen event for mining on the latest released block
+                sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k , self.exec_node_id, self.timeOfexec, priv_blk, 0))
                     
         else:
 

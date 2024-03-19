@@ -1,4 +1,3 @@
-from sympy import true
 from simulator import Simulator
 import argparse
 
