@@ -204,30 +204,60 @@ class BlockRec(Events):
         for txn in self.new_block.transactions:
             if sim.nodes[txn.sender_id].coins < 0:
                 return
-        
-        # Add the recived block to the collection of seen public_blocks
-        cur_node.public_blocks[self.new_block.id] = [self.new_block, self.timeOfexec]
-        
+            
+        if self.new_block.contains_2_blocks:
+                cur_node.public_blocks[self.new_block.block1.id] = [self.new_block.block1, self.timeOfexec]
+                cur_node.public_blocks[self.new_block.block2.id] = [self.new_block.block2, self.timeOfexec]
+
+                cur_node.already_in_blockchain_transactions += self.new_block.block1.transactions + self.new_block.block2.transactions
+
+                
+        else:
+            # Add the recived block to the collection of seen public_blocks
+            cur_node.public_blocks[self.new_block.id] = [self.new_block, self.timeOfexec]
+            
+            # Add the transactions in the new block to the list of longest chain transactions
+            cur_node.already_in_blockchain_transactions += self.new_block.transactions
+
         # Calculate the longest chain and get the last block
         longest_chain = cur_node.calculate_longest_blockchain()
         last_block = longest_chain[0]
         
-        
-
-        # Add the transactions in the new block to the list of longest chain transactions
-        cur_node.already_in_blockchain_transactions += self.new_block.transactions
 
         if cur_node.isAttacker:
             match cur_node.lead_from_honest_block:
                 case(0):
                     sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id , self.timeOfexec, last_block))
                 case(1):
-                    pass
+                    
+                    # Removing the private block from the private block chain 
+                    min_key = min(cur_node.private_blocks)
+                    priv_blk, priv_timestamp = cur_node.private_blocks[min_key]
+                    del cur_node.private_blocks[min_key]
+                    
+                    # Adding the private block to the public block chain
+                    cur_node.public_blocks[min_key] = [priv_blk, priv_timestamp]
+                    
+                    # Broadcasting the private block to all the neighbors
+                    for i in sim.peers[self.exec_node_id]:
+                        # Block receive event added for all the neighbours 
+                        sim.events.put(BlockRec(self.timeOfexec + sim.delay(8000*(1+len(priv_blk.transactions)), self.exec_node_id, i) , i, self.exec_node_id, self.exec_node_id, self.timeOfexec, priv_blk))
+            
+                    # Creating a BlockGen event for selfish mining on the latest released block
+                    sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k , self.exec_node_id)
+                    
                 case(2):
-                    pass
+                    min_key1 = min(cur_node.private_blocks)
+                    
+                    del cur_node.private_blocks[min_key1]
+
+                    min_key2 = min(cur_node.private_blocks)
+                    del cur_node.private_blocks[min_key2]
+                        
                 case(default):
                     pass
         else:
+
             for i in sim.peers[self.exec_node_id]:
                 # Block receive event added for all the neighbours 
                 if i == self.sender_id:

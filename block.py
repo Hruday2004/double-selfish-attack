@@ -14,6 +14,11 @@ class Block:
         self.length = length
         
         self.prev_block_id = prev_block_id
+
+        self.contains_2_blocks = False
+        self.block1 = None
+        self.block2 = None
+
         
     def __repr__(self):
         return f"block_id: {self.id}, node_id: {self.node_id}, prev_block_id: {self.prev_block_id}, length: {self.length}"
