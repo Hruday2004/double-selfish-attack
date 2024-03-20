@@ -18,7 +18,7 @@ class Simulator:
     max_sim_time: Maximum simulation time for simulator
     
     """
-    def __init__(self, num_nodes, slowfrac, lowCPUfrac, txnDelay_meantime, max_sim_time, attacker1_hp, attacker2_hp):
+    def __init__(self, num_nodes, slowfrac, txnDelay_meantime, max_sim_time, attacker1_hp, attacker2_hp):
 
         self.txnDelay_meantime = txnDelay_meantime
         self.num_nodes = num_nodes
@@ -38,7 +38,7 @@ class Simulator:
         self.attacker1_hp = attacker1_hp
         self.attacker2_hp = attacker2_hp
 
-        self.nodes = self.create_nodes(slowfrac,lowCPUfrac)
+        self.nodes = self.create_nodes(slowfrac)
         
         self.peers = self.create_peers(num_nodes)
 
@@ -47,7 +47,7 @@ class Simulator:
 
     def __str__(self):
         pass
-    def create_nodes(self, slowfrac, lowCPUfrac): 
+    def create_nodes(self, slowfrac): 
         """ Creates the nodes in the Simulator
 
         :param slowfrac: Fraction of nodes which have slow transmission
@@ -56,17 +56,13 @@ class Simulator:
         """
 
         slownodes = int(slowfrac * (self.num_nodes - 2))
-        lowCPUnodes = int(lowCPUfrac * (self.num_nodes - 2))
 
         l1 = [1]*int(self.num_nodes-slownodes) + [0]*slownodes
-        l2 = [1]*int(self.num_nodes-lowCPUnodes) + [0]*lowCPUnodes
 
         # Sum of hashing power of all the nodes
-        hashingSum = (self.num_nodes-lowCPUnodes - 2)*10 + lowCPUnodes 
-
+        hashingSum = self.num_nodes-2
 
         random.shuffle(l1)  
-        random.shuffle(l2)
 
         nodes = {}
 
@@ -75,11 +71,9 @@ class Simulator:
         
         for i in range(2, self.num_nodes):
             hashFrac = (1-self.attacker1_hp-self.attacker2_hp)/hashingSum
-            if l2[i] == 1:
-                hashFrac = (10*(1-self.attacker1_hp-self.attacker2_hp))/hashingSum
         
             print("hashFrac", i, hashFrac)
-            nodes[i] = Node(coins=100,isFast=l1[i], isHighCPU=l2[i],id=i,hashingFraction=hashFrac, isAttacker=0)
+            nodes[i] = Node(coins=100,isFast=l1[i], isHighCPU=0,id=i,hashingFraction=hashFrac, isAttacker=0)
 
         for i in range(self.num_nodes):
             self.p.append([])
