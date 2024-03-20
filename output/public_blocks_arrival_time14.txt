@@ -1,0 +1,2 @@
+block 0 : arrived at 0
+block 1 : arrived at 6.743296722395199

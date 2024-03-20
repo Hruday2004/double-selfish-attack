@@ -78,6 +78,7 @@ class Simulator:
             if l2[i] == 1:
                 hashFrac = (10*(1-self.attacker1_hp-self.attacker2_hp))/hashingSum
         
+            print("hashFrac", i, hashFrac)
             nodes[i] = Node(coins=100,isFast=l1[i], isHighCPU=l2[i],id=i,hashingFraction=hashFrac, isAttacker=0)
 
         for i in range(self.num_nodes):

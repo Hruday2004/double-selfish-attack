@@ -1,0 +1,8 @@
+digraph G { 
+rankdir="LR";
+
+	0 [color=black, style=filled, fillcolor=white];
+	1 [color=black, style=filled, fillcolor=green];
+	0 -> 1
+
+}

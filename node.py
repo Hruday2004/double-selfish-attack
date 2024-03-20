@@ -72,7 +72,7 @@ class Node:
 
         :return: Value of the delay from an exponential distribution
         """
-        return np.random.exponential(600/self.hashingFraction, 1)[0]
+        return np.random.exponential(5/self.hashingFraction, 1)[0]
     
     def create_chain(self):
         
@@ -87,14 +87,29 @@ class Node:
 
             # Draw edges of the blockchain tree
             for block in self.public_blocks.values():
+                
+                a1c = "red" 
+                a2c = "blue"
+                hc = "green"
+                node_color = "white"
+                
+                if block[0].node_id == 0:
+                    node_color = a1c
+                elif block[0].node_id == 1:
+                    node_color = a2c
+                else:
+                    node_color = hc
+                    
+                if block[0].id == 0:
+                    node_color = "white"
+
+                node_definition = f'\t{block[0].id} [color=black, style=filled, fillcolor={node_color}];\n'
+                fh.write(node_definition)
 
                 if block[0].prev_block_id != -1:
                     edge = "\t%d -> %d\n" % (block[0].prev_block_id, block[0].id)
 
                     fh.write(edge)
-
-                # else:
-                #     edge = "%d\n" % block.id
 
             # Close the graph
             fh.write("\n}")       
