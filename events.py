@@ -271,7 +271,7 @@ class BlockRec(Events):
                 cur_node.public_blocks[min_key2] = [block2,cur_node.private_blocks[min_key2][1]]
                 del cur_node.private_blocks[min_key2]
 
-                twoinoneblock = Block(sim.block_id, self.exec_node_id, self.timeOfexec, block1.prev_block.id, 0)
+                twoinoneblock = Block(sim.block_id, self.exec_node_id, self.timeOfexec, block1.prev_block_id, 0)
                 twoinoneblock.contains_2_blocks = True
                 twoinoneblock.block1 = block1
                 twoinoneblock.block2 = block2
