@@ -53,7 +53,7 @@ class Node:
                 earliest_block_time = blk[1]
                 block_id = blk[0].id
                 
-                print(f"Same Length Block found for node {self.id}, length: {max_length}")
+                # print(f"Same Length Block found for node {self.id}, length: {max_length}")
                 
         long_chain = [self.public_blocks[block_id][0]]
         

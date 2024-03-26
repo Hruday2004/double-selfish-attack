@@ -204,7 +204,6 @@ class BlockRec(Events):
 
         cur_node = sim.nodes[self.exec_node_id]
         
-        print("rcvd block", cur_node.id, self.new_block.id)
         if self.new_block.id in list(cur_node.public_blocks.keys()):
             # If block is already seen by the node, then return
             return
@@ -236,11 +235,9 @@ class BlockRec(Events):
 
         if cur_node.isAttacker:
             if cur_node.lead_from_honest_block == 0:
-                print("attacker", cur_node.id, 0)
                 # Creating a BlockGen event for selfish mining on the longest chain
                 sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id , self.timeOfexec, last_block, 0))
             elif cur_node.lead_from_honest_block == 1:
-                print("attacker", cur_node.id, 1)
                 # Removing the private block from the private block chain 
                 min_key = min(cur_node.private_blocks)
                 priv_blk, priv_timestamp = cur_node.private_blocks[min_key][0], cur_node.private_blocks[min_key][1]
@@ -260,7 +257,6 @@ class BlockRec(Events):
                 sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id, self.timeOfexec, priv_blk, 1))
                 
             elif cur_node.lead_from_honest_block == 2:
-                print("attacker", cur_node.id, 2)
                 min_key1 = min(cur_node.private_blocks)
                 block1 = deepcopy(cur_node.private_blocks[min_key1][0])
                 cur_node.public_blocks[min_key1] = [block1,cur_node.private_blocks[min_key1][1]]
@@ -287,7 +283,6 @@ class BlockRec(Events):
                 sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id, self.timeOfexec, block2, 0))
     
             else:
-                print("attacker", cur_node.id, 3)
                 # Removing the private block from the private block chain 
                 min_key = min(cur_node.private_blocks)
                 priv_blk, priv_timestamp = cur_node.private_blocks[min_key][0], cur_node.private_blocks[min_key][1]

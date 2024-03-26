@@ -1,1 +1,12 @@
 block 0 : arrived at 0
+block 1 : arrived at 3.9675245668603893
+block 2 : arrived at 14.124834290255704
+block 3 : arrived at 14.772168097264533
+block 4 : arrived at 16.019443211746708
+block 6 : arrived at 29.96211652085969
+block 5 : arrived at 30.126520885840154
+block 8 : arrived at 37.740364572052194
+block 10 : arrived at 68.37504695015785
+block 9 : arrived at 68.91830115318845
+block 11 : arrived at 68.92489589381547
+block 12 : arrived at 71.1255618389829

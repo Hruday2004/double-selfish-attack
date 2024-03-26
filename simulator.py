@@ -72,7 +72,6 @@ class Simulator:
         for i in range(2, self.num_nodes):
             hashFrac = (1-self.attacker1_hp-self.attacker2_hp)/hashingSum
         
-            print("hashFrac", i, hashFrac)
             nodes[i] = Node(coins=100,isFast=l1[i], isHighCPU=0,id=i,hashingFraction=hashFrac, isAttacker=0)
 
         for i in range(self.num_nodes):
