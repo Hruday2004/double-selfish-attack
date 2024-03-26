@@ -1,19 +1,20 @@
-# des-p2p-crypto-net
+# double-selfish-attack
 
-Discrete-event simulator for a P2P cryptocurrency network
+Simulation of Double Selfish Mining Attack on a Blockchain network
 
-Usage: python3 main.py [--num_nodes NODES] [--slowfrac SLOW] [--lowCPUfrac LOWCPU] [--txnDelay_meantime TXNDELAYMEAN] [--max_sim_time MAXSIMULATIONTIME]
+Usage: python3 main.py [-n NODES] [-txm TXNDELAYMEAN] [-mst MAXSIMULATIONTIME] [-a1hp HPA1] [-a2hp HPA2]
 
 NODES - Number of nodes  
-SLOW - Fraction of nodes which are slow  
-LOWCPU - Fraction of nodes which are low CPU  
 TXNDELAYMEAN - Average inter arrival time between transactions  
 MAXSIMULATIONTIME - Maximum duration of the simulation period.
+HPA1 - Hashing fraction of attacker1
+HPA2 - Hashing fraction of attacker2
 
 ## Output
 
-All the tree information for each node will be created in the output folder.  
-To change the avg block generation delay you have to change it in the line 71 of file node.py  
+All the tree information for each node will be created in the output folder. 
+Red node represents the attacker1 mined block, Blue node represents the attacker2 mined block and green node represents the honest miners mined block.   
+To change the avg block generation delay you have to change it in the line 75 of file node.py  
 
 ## Dependencies
 
