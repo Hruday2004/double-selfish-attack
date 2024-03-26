@@ -7,8 +7,8 @@ Usage: python3 main.py [-n NODES] [-txm TXNDELAYMEAN] [-mst MAXSIMULATIONTIME] [
 NODES - Number of nodes  
 TXNDELAYMEAN - Average inter arrival time between transactions  
 MAXSIMULATIONTIME - Maximum duration of the simulation period.
-HPA1 - Hashing fraction of attacker1
-HPA2 - Hashing fraction of attacker2
+HPA1 - Hashing fraction of attacker1  
+HPA2 - Hashing fraction of attacker2  
 
 ## Output
 
