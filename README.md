@@ -6,15 +6,16 @@ Usage: python3 main.py [-n NODES] [-txm TXNDELAYMEAN] [-mst MAXSIMULATIONTIME] [
 
 NODES - Number of nodes  
 TXNDELAYMEAN - Average inter arrival time between transactions  
-MAXSIMULATIONTIME - Maximum duration of the simulation period.
-HPA1 - Hashing fraction of attacker1
-HPA2 - Hashing fraction of attacker2
+MAXSIMULATIONTIME - Maximum duration of the simulation period.  
+HPA1 - Hashing fraction of attacker1  
+HPA2 - Hashing fraction of attacker2  
+
+To change the avg block generation delay you have to change it in the line 75 of file node.py  
 
 ## Output
 
-All the tree information for each node will be created in the output folder. 
+- All the tree information for each node will be created in the output folder.
 Red node represents the attacker1 mined block, Blue node represents the attacker2 mined block and green node represents the honest miners mined block.   
-To change the avg block generation delay you have to change it in the line 75 of file node.py  
 
 ## Dependencies
 
