@@ -216,6 +216,7 @@ class BlockRec(Events):
             if sim.nodes[txn.sender_id].coins < 0:
                 return
             
+        # this is for the special case where a node received a block from an attacker who released two blocks at the same time
         if self.new_block.contains_2_blocks:
                 cur_node.public_blocks[self.new_block.block1.id] = [self.new_block.block1, self.timeOfexec]
                 cur_node.public_blocks[self.new_block.block2.id] = [self.new_block.block2, self.timeOfexec]
@@ -257,16 +258,19 @@ class BlockRec(Events):
                 sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id, self.timeOfexec, priv_blk, 1))
                 
             elif cur_node.lead_from_honest_block == 2:
+                # Removing the private block from the private block chain 
                 min_key1 = min(cur_node.private_blocks)
                 block1 = deepcopy(cur_node.private_blocks[min_key1][0])
                 cur_node.public_blocks[min_key1] = [block1,cur_node.private_blocks[min_key1][1]]
                 del cur_node.private_blocks[min_key1]
 
+                # Removing the private block from the private block chain 
                 min_key2 = min(cur_node.private_blocks)
                 block2 = deepcopy(cur_node.private_blocks[min_key2][0])
                 cur_node.public_blocks[min_key2] = [block2,cur_node.private_blocks[min_key2][1]]
                 del cur_node.private_blocks[min_key2]
 
+                # Creating a special block two blocks in a single block so that it will reach other nodes at the same time
                 twoinoneblock = Block(sim.block_id, self.exec_node_id, self.timeOfexec, block1.prev_block_id, 0)
                 twoinoneblock.contains_2_blocks = True
                 twoinoneblock.block1 = block1
@@ -280,6 +284,7 @@ class BlockRec(Events):
 
                 cur_node.lead_from_honest_block = 0
 
+                # Creating a BlockGen event for mining on the latest released block
                 sim.events.put(BlockGen(self.timeOfexec + sim.nodes[self.exec_node_id].T_k() , self.exec_node_id, self.timeOfexec, block2, 0))
     
             else:
